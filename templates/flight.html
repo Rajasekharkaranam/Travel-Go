@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Flights - TravelGo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('/static/images/flight.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: #fff;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 2;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+    }
+
+    header h1 {
+      font-size: 28px;
+    }
+
+    .nav-links a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #00ffff;
+      font-weight: bold;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ffff;
+      margin-bottom: 25px;
+      font-size: 26px;
+    }
+
+    .form-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+      justify-content: center;
+    }
+
+    .form-control {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.9);
+      min-width: 140px;
+      flex: 1;
+      font-size: 14px;
+      color: #000;
+    }
+
+    .btn-primary {
+      background-color: #00ffff;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: #00d9e6;
+    }
+
+    .flight-card {
+      background: rgba(255, 255, 255, 0.95);
+      color: #000;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 15px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .flight-card strong {
+      font-size: 18px;
+      color: #007bff;
+    }
+
+    .book-btn {
+      background: #28a745;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .book-btn:hover {
+      background: #1e7e34;
+    }
+
+    @media (max-width: 768px) {
+      .form-control {
+        min-width: 100%;
+      }
+
+      .flight-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .book-btn {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TravelGo</h1>
+    <div class="nav-links">
+      <a href="/home">Home</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>✈ Search & Book Flights</h2>
+    <form id="searchForm" class="form-inline">
+      <select id="source" class="form-control">
+        <option value="">From</option>
+        <option value="Hyderabad">Hyderabad</option>
+        <option value="Bengaluru">Bengaluru</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Delhi">Delhi</option>
+      </select>
+
+      <select id="destination" class="form-control">
+        <option value="">To</option>
+        <option value="Hyderabad">Hyderabad</option>
+        <option value="Bengaluru">Bengaluru</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Delhi">Delhi</option>
+      </select>
+
+      <input type="date" id="date" class="form-control" />
+      <input type="number" id="numPersons" class="form-control" min="1" value="1" placeholder="Passengers" />
+      <button type="button" id="search-btn" class="btn-primary">Search</button>
+    </form>
+
+    <div id="flight-list"></div>
+  </main>
+
+  <script>
+   const flights = [
+      { id: 'FLT001', airline: 'IndiGo', number: '6E-234', source: 'Hyderabad', dest: 'Mumbai', depart: '08:00', arrive: '09:30', price: 3500 },
+      { id: 'FLT002', airline: 'Air India', number: 'AI-222', source: 'Hyderabad', dest: 'Delhi', depart: '07:30', arrive: '09:15', price: 3200 },
+      { id: 'FLT003', airline: 'SpiceJet', number: 'SG-321', source: 'Hyderabad', dest: 'Chennai', depart: '14:00', arrive: '15:30', price: 2700 },
+      { id: 'FLT004', airline: 'Vistara', number: 'UK-789', source: 'Hyderabad', dest: 'Bengaluru', depart: '17:00', arrive: '18:20', price: 3100 },
+      { id: 'FLT005', airline: 'Vistara', number: 'UK-876', source: 'Bengaluru', dest: 'Delhi', depart: '12:00', arrive: '14:45', price: 4500 },
+      { id: 'FLT006', airline: 'SpiceJet', number: 'SG-123', source: 'Bengaluru', dest: 'Hyderabad', depart: '09:00', arrive: '10:30', price: 2900 },
+      { id: 'FLT007', airline: 'Air India', number: 'AI-400', source: 'Bengaluru', dest: 'Chennai', depart: '15:00', arrive: '16:00', price: 2400 },
+      { id: 'FLT008', airline: 'IndiGo', number: '6E-600', source: 'Bengaluru', dest: 'Mumbai', depart: '20:00', arrive: '21:30', price: 3200 },
+      { id: 'FLT009', airline: 'Air India', number: 'AI-543', source: 'Chennai', dest: 'Hyderabad', depart: '06:00', arrive: '07:20', price: 2800 },
+      { id: 'FLT010', airline: 'SpiceJet', number: 'SG-500', source: 'Chennai', dest: 'Mumbai', depart: '13:00', arrive: '14:40', price: 3400 },
+      { id: 'FLT011', airline: 'Vistara', number: 'UK-200', source: 'Chennai', dest: 'Delhi', depart: '10:00', arrive: '12:30', price: 3900 },
+      { id: 'FLT012', airline: 'IndiGo', number: '6E-303', source: 'Chennai', dest: 'Bengaluru', depart: '18:00', arrive: '19:00', price: 2500 },
+      { id: 'FLT013', airline: 'SpiceJet', number: 'SG-123', source: 'Mumbai', dest: 'Bengaluru', depart: '18:00', arrive: '19:30', price: 3200 },
+      { id: 'FLT014', airline: 'Air India', number: 'AI-600', source: 'Mumbai', dest: 'Chennai', depart: '11:00', arrive: '12:30', price: 3500 },
+      { id: 'FLT015', airline: 'Vistara', number: 'UK-111', source: 'Mumbai', dest: 'Delhi', depart: '07:00', arrive: '09:00', price: 4100 },
+      { id: 'FLT016', airline: 'IndiGo', number: '6E-999', source: 'Mumbai', dest: 'Hyderabad', depart: '16:00', arrive: '17:20', price: 3000 },
+      { id: 'FLT017', airline: 'Vistara', number: 'UK-333', source: 'Delhi', dest: 'Hyderabad', depart: '05:30', arrive: '07:10', price: 3600 },
+      { id: 'FLT018', airline: 'Air India', number: 'AI-777', source: 'Delhi', dest: 'Chennai', depart: '08:00', arrive: '10:45', price: 3900 },
+      { id: 'FLT019', airline: 'SpiceJet', number: 'SG-888', source: 'Delhi', dest: 'Mumbai', depart: '15:00', arrive: '17:00', price: 4000 },
+      { id: 'FLT020', airline: 'IndiGo', number: '6E-404', source: 'Delhi', dest: 'Bengaluru', depart: '19:00', arrive: '21:30', price: 3700 }
+    ];
+
+
+    function filterFlights() {
+      const src = document.getElementById('source').value;
+      const dst = document.getElementById('destination').value;
+      const date = document.getElementById('date').value;
+      const pax = parseInt(document.getElementById('numPersons').value);
+      const list = document.getElementById('flight-list');
+      list.innerHTML = '';
+
+      if (!src || !dst || !date || pax < 1) {
+        list.innerHTML = '<p>Please select all fields correctly.</p>';
+        return;
+      }
+
+      if (src === dst) {
+        list.innerHTML = '<p>Source and destination cannot be the same.</p>';
+        return;
+      }
+
+      const filtered = flights.filter(f => f.source === src && f.dest === dst);
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<p>No flights found.</p>';
+        return;
+      }
+
+      filtered.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'flight-card';
+        card.innerHTML = `
+          <div>
+            <strong>${f.airline} ${f.number}</strong><br>
+            ${f.source} → ${f.dest}<br>
+            ${date} | ${f.depart} - ${f.arrive}
+          </div>
+          <div>
+            ₹${f.price} x ${pax} = <strong>₹${f.price * pax}</strong>
+          </div>
+          <button class="book-btn" onclick="confirmFlight('${f.id}','${f.airline}','${f.number}','${f.source}','${f.dest}','${f.depart}','${f.arrive}','${date}',${pax},${f.price})">Book</button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function confirmFlight(id, airline, number, src, dst, depart, arrive, date, pax, price) {
+      const url = `/confirm_flight_details?flight_id=${id}&airline=${airline}&flight_number=${number}&source=${src}&destination=${dst}&departure=${depart}&arrival=${arrive}&date=${date}&passengers=${pax}&price=${price}`;
+      window.location.href = url;
+    }
+
+    document.getElementById('search-btn').addEventListener('click', filterFlights);
+  </script>
+</body>
+</html>

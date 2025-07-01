@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirm Bus Booking - TravelGo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f0ff, #ffffff);
+      color: #333;
+    }
+
+    header {
+      background-color: #004aad;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #004aad;
+      margin-bottom: 30px;
+    }
+
+    .message-box {
+      display: none;
+      padding: 12px 18px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .message-box.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message-box.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .booking-summary {
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+    }
+
+    .booking-summary h3 {
+      margin-top: 0;
+      color: #004aad;
+    }
+
+    .total-price {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #28a745;
+      margin-top: 10px;
+    }
+
+    .buttons-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    button,
+    .btn {
+      padding: 10px 18px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button#confirmBookingBtn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    button#confirmBookingBtn:hover {
+      background-color: #218838;
+    }
+
+    .btn.btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn.btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      padding: 20px;
+      background-color: #004aad;
+      color: white;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .buttons-container {
+        flex-direction: column;
+      }
+    }
+    .seat-map {
+  display: grid;
+  grid-template-columns: repeat(5, 50px); /* 2 seats, aisle, 2 seats */
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
+.seat {
+  width: 50px;
+  height: 50px;
+  background-color: #d4edda;
+  border: 2px solid #28a745;
+  border-radius: 6px;
+  text-align: center;
+  line-height: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #155724;
+  transition: 0.3s;
+}
+
+.seat.selected {
+  background-color: #28a745;
+  color: white;
+}
+
+.seat.occupied {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+  cursor: not-allowed;
+}
+
+.seat.empty {
+  visibility: hidden;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TravelGo</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <div class="container">
+  <h2>🚌 Confirm Bus Booking</h2>
+
+  <div class="booking-summary">
+    <h3>Booking Details:</h3>
+    <h4>Select Your Seats:</h4>
+    <div class="seat-note">🟩 Available | 🟥 Occupied | 🟢 Selected</div>
+    <div id="seat-map" class="seat-map"></div>
+    <input type="hidden" id="selectedSeatsInput" name="selectedSeats" />
+
+    <p><strong>Bus Name:</strong> {{ booking.name }}</p>
+    <p><strong>Route:</strong> {{ booking.source }} to {{ booking.destination }}</p>
+    <p><strong>Date:</strong> {{ booking.travel_date }}</p>
+    <p><strong>Time:</strong> {{ booking.time }}</p>
+    <p><strong>Type:</strong> {{ booking.type }}</p>
+    <p><strong>Passengers:</strong> {{ booking.num_persons }}</p>
+    <p><strong>Selected Seats:</strong>
+      <span id="selectedSeatsDisplay">{{ booking.selected_seats | join(', ') if booking.selected_seats else "None" }}</span>
+    </p>
+    <p class="total-price">Total Price: ₹{{ "{:,.2f}".format(booking.total_price) }}</p>
+  </div>
+
+  <div class="buttons-container">
+    <button id="confirmBookingBtn">Confirm Booking</button>
+    <a href="/bus" class="btn btn-secondary">Go Back to Search</a>
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 TravelGo. All rights reserved.
+</footer>
+
+<script id="occupied-seats-data" type="application/json">
+  {{ occupied_seats | default([]) | tojson }}
+</script>
+
+<script>
+  const seatLabels = ["A1","A2","A3","A4","A5","B1","B2","B3","B4","B5","C1","C2","C3","C4","C5"];
+  const numPersons = parseInt("{{ booking.num_persons or 0 }}");
+  const occupiedSeats = JSON.parse(document.getElementById("occupied-seats-data").textContent);
+
+  const seatMap = document.getElementById("seat-map");
+  const selectedSeatsInput = document.getElementById("selectedSeatsInput");
+  const selectedSeatsDisplay = document.getElementById("selectedSeatsDisplay");
+  let selectedSeats = [];
+
+  seatLabels.forEach(label => {
+    const seat = document.createElement("div");
+    seat.classList.add("seat");
+    seat.textContent = label;
+
+    if (occupiedSeats.includes(label)) {
+      seat.classList.add("occupied");
+    } else {
+      seat.addEventListener("click", () => {
+        if (seat.classList.contains("selected")) {
+          seat.classList.remove("selected");
+          selectedSeats = selectedSeats.filter(s => s !== label);
+        } else {
+          if (selectedSeats.length >= numPersons) {
+            alert('You can only select ${numPersons} seat(s).');
+            return;
+          }
+          seat.classList.add("selected");
+          selectedSeats.push(label);
+        }
+        selectedSeatsInput.value = selectedSeats.join(",");
+        selectedSeatsDisplay.textContent = selectedSeats.length > 0 ? selectedSeats.join(", ") : "None";
+      });
+    }
+
+    seatMap.appendChild(seat);
+  });
+
+  document.getElementById('confirmBookingBtn').addEventListener('click', async () => {
+    const seats = selectedSeatsInput.value;
+    if (!seats || selectedSeats.length !== numPersons) {
+      alert('Please select exactly ${numPersons} seat(s) before confirming.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/final_confirm_booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selected_seats: seats })
+      });
+      const result = await response.json();
+      if (result.success) {
+        window.location.href = result.redirect;
+      } else {
+        alert(result.message || "Booking failed.");
+      }
+    } catch (error) {
+      alert("Error confirming booking.");
+    }
+  });
+</script>
+
+</body>
+</html>

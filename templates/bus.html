@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TravelGo - Bus Booking</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('/static/images/bus.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: #fff;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    header {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px 0;
+      text-align: center;
+      z-index: 1;
+    }
+
+    header h1 {
+      color: #00f7ff;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    nav a {
+      margin: 0 12px;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      color: #00f7ff;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 30px;
+      margin: auto;
+      top: 50%;
+      transform: translateY(60%);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 26px;
+      color: #00f7ff;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    select,
+    input[type="date"],
+    input[type="number"] {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+    }
+
+    .search-btn {
+      width: 100%;
+      padding: 14px;
+      background: #00f7ff;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .search-btn:hover {
+      background: #00d9e6;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .filters label {
+      background: rgba(255, 255, 255, 0.8);
+      color: #000;
+      padding: 8px 14px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .filters input {
+      margin-right: 6px;
+    }
+
+    .sort-row {
+      margin-bottom: 20px;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .sort-row select {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 15px;
+      border: none;
+      background-color: #fff;
+      color: #000;
+    }
+
+    .bus-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .bus-card {
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #000;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .bus-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .bus-card strong {
+      font-size: 20px;
+      color: #007bff;
+    }
+
+    .book-btn {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .book-btn:hover {
+      background: #1e7e34;
+    }
+
+    .no-results {
+      text-align: center;
+      font-style: italic;
+      color: #eee;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+        transform: translateY(30%);
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TravelGo</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>🚌 Search & Book Buses</h2>
+
+    <div class="form-grid">
+      <select id="source">
+        <option value="">From</option>
+        <option>Hyderabad</option>
+        <option>Vijayawada</option>
+        <option>Guntur</option>
+        <option>Bengaluru</option>
+        <option>Chennai</option>
+      </select>
+      <select id="destination">
+        <option value="">To</option>
+        <option>Hyderabad</option>
+        <option>Vijayawada</option>
+        <option>Guntur</option>
+        <option>Bengaluru</option>
+        <option>Chennai</option>
+      </select>
+      <input type="date" id="date" />
+      <input type="number" id="numPersons" min="1" value="1" placeholder="No. of Persons" />
+    </div>
+
+    <button class="search-btn" id="search-btn">Search</button>
+
+    <div class="filters">
+      <label><input type="checkbox" id="AC"> AC</label>
+      <label><input type="checkbox" id="Non-AC"> Non-AC</label>
+      <label><input type="checkbox" id="Sleeper"> Sleeper</label>
+      <label><input type="checkbox" id="Semi-Sleeper"> Semi-Sleeper</label>
+      <label><input type="checkbox" id="Seater"> Seater</label>
+    </div>
+
+    <div class="sort-row">
+      <label for="sort">Sort by Price:</label>
+      <select id="sort">
+        <option value="None">None</option>
+        <option value="low">Low to High</option>
+        <option value="high">High to Low</option>
+      </select>
+    </div>
+
+    <div id="bus-list" class="bus-list"></div>
+  </div>
+
+  <script>
+    const buses = [
+  // Hyderabad
+  { name: "Orange Travels", source: "Hyderabad", destination: "Vijayawada", time: "08:00 AM", type: "AC Sleeper", price: 800, _id: "bus_001" },
+  { name: "Kaveri Travels", source: "Hyderabad", destination: "Guntur", time: "09:30 AM", type: "Non-AC Semi-Sleeper", price: 550, _id: "bus_002" },
+  { name: "TSRTC Express", source: "Hyderabad", destination: "Bengaluru", time: "07:00 AM", type: "AC Seater", price: 950, _id: "bus_003" },
+  { name: "Morning Star", source: "Hyderabad", destination: "Chennai", time: "05:00 PM", type: "AC Sleeper", price: 1000, _id: "bus_004" },
+
+  // Vijayawada
+  { name: "VRL Travels", source: "Vijayawada", destination: "Hyderabad", time: "07:00 PM", type: "AC Seater", price: 650, _id: "bus_005" },
+  { name: "Kesineni Travels", source: "Vijayawada", destination: "Guntur", time: "06:00 AM", type: "Non-AC Seater", price: 400, _id: "bus_006" },
+  { name: "Greenline Express", source: "Vijayawada", destination: "Bengaluru", time: "08:00 AM", type: "Sleeper", price: 850, _id: "bus_007" },
+  { name: "Garuda Express", source: "Vijayawada", destination: "Chennai", time: "10:00 AM", type: "AC Semi-Sleeper", price: 900, _id: "bus_008" },
+
+  // Guntur
+  { name: "Jabbar Travels", source: "Guntur", destination: "Hyderabad", time: "05:00 AM", type: "AC Seater", price: 600, _id: "bus_009" },
+  { name: "SRS Travels", source: "Guntur", destination: "Vijayawada", time: "06:30 AM", type: "Non-AC Seater", price: 350, _id: "bus_010" },
+  { name: "Raj Travels", source: "Guntur", destination: "Bengaluru", time: "07:00 AM", type: "Sleeper", price: 780, _id: "bus_011" },
+  { name: "KPN Travels", source: "Guntur", destination: "Chennai", time: "03:30 PM", type: "AC Sleeper", price: 880, _id: "bus_012" },
+
+  // Bengaluru
+  { name: "SRS Travels", source: "Bengaluru", destination: "Hyderabad", time: "10:00 AM", type: "Non-AC Sleeper", price: 700, _id: "bus_013" },
+  { name: "Orange Travels", source: "Bengaluru", destination: "Vijayawada", time: "09:00 PM", type: "AC Semi-Sleeper", price: 970, _id: "bus_014" },
+  { name: "TSRTC Express", source: "Bengaluru", destination: "Guntur", time: "06:00 AM", type: "Seater", price: 820, _id: "bus_015" },
+  { name: "Greenline Travels", source: "Bengaluru", destination: "Chennai", time: "06:00 PM", type: "AC Semi-Sleeper", price: 900, _id: "bus_016" },
+
+  // Chennai
+  { name: "Chennai Express", source: "Chennai", destination: "Hyderabad", time: "07:30 PM", type: "AC Sleeper", price: 1100, _id: "bus_017" },
+  { name: "SRM Travels", source: "Chennai", destination: "Vijayawada", time: "08:00 AM", type: "Non-AC Sleeper", price: 860, _id: "bus_018" },
+  { name: "ABT Travels", source: "Chennai", destination: "Guntur", time: "09:00 AM", type: "AC Seater", price: 790, _id: "bus_019" },
+  { name: "Morning Star", source: "Chennai", destination: "Bengaluru", time: "06:00 AM", type: "Sleeper", price: 720, _id: "bus_020" }
+];
+
+
+    function filterBuses() {
+      const source = document.getElementById("source").value;
+      const destination = document.getElementById("destination").value;
+      const date = document.getElementById("date").value;
+      const numPersons = parseInt(document.getElementById("numPersons").value);
+      const sort = document.getElementById("sort").value;
+      const list = document.getElementById("bus-list");
+
+      list.innerHTML = "";
+
+      if (!source || !destination || !date || numPersons < 1) {
+        list.innerHTML = '<p class="no-results">Please complete all fields to search.</p>';
+        return;
+      }
+
+      if (source === destination) {
+        alert("Source and destination cannot be the same.");
+        return;
+      }
+
+      const filters = {
+        AC: document.getElementById("AC").checked,
+        "Non-AC": document.getElementById("Non-AC").checked,
+        Sleeper: document.getElementById("Sleeper").checked,
+        "Semi-Sleeper": document.getElementById("Semi-Sleeper").checked,
+        Seater: document.getElementById("Seater").checked
+      };
+
+      let results = buses.filter(b => {
+        const matchRoute = b.source === source && b.destination === destination;
+        const noFilter = Object.values(filters).every(v => !v);
+        const matchType =
+          (filters.AC && b.type.includes("AC")) ||
+          (filters["Non-AC"] && b.type.includes("Non-AC")) ||
+          (filters.Sleeper && b.type.includes("Sleeper")) ||
+          (filters["Semi-Sleeper"] && b.type.includes("Semi-Sleeper")) ||
+          (filters.Seater && b.type.includes("Seater"));
+        return matchRoute && (noFilter || matchType);
+      });
+
+      if (sort === "low") results.sort((a, b) => a.price - b.price);
+      if (sort === "high") results.sort((a, b) => b.price - a.price);
+
+      if (results.length === 0) {
+        list.innerHTML = '<p class="no-results">No matching buses found.</p>';
+        return;
+      }
+
+      results.forEach(bus => {
+        const card = document.createElement("div");
+        card.className = "bus-card";
+        card.innerHTML = `
+          <strong>${bus.name}</strong><br/>
+          ${bus.type} • ${bus.time} • ₹${bus.price}/person<br/>
+          <button class="book-btn" onclick='confirmBusBooking("${bus.name}", "${bus.source}", "${bus.destination}", "${bus.time}", "${bus.type}", ${bus.price}, "${date}", ${numPersons}, "${bus._id}")'>Book</button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function confirmBusBooking(name, source, destination, time, type, price, date, persons, busId) {
+     const url = `/confirm_bus_details?name=${encodeURIComponent(name)}&source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}&time=${encodeURIComponent(time)}&type=${encodeURIComponent(type)}&price=${price}&date=${date}&persons=${persons}&busId=${busId}`;
+
+      window.location.href = url;}
+    
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("date").value = today;
+      document.getElementById("search-btn").addEventListener("click", filterBuses);
+    });
+  </script>
+</body>
+</html>
